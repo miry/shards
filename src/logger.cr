@@ -18,7 +18,7 @@ module Shards
   end
 
   def self.set_debug_log_level
-    Log.level = ::Log::Severity::Debug
+    Log.level = ::Log::Severity::Trace
   end
 
   LOGGER_COLORS = {
@@ -30,6 +30,8 @@ module Shards
 
   FORMATTER = ::Log::Formatter.new do |entry, io|
     message = entry.message
+    # Debug logger
+    # pp! entry
 
     if @@colors
       io << if color = LOGGER_COLORS[entry.severity]?

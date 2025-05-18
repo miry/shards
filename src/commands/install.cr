@@ -22,14 +22,18 @@ module Shards
         solver.prepare(development: Shards.with_development?)
 
         packages = handle_resolver_errors { solver.solve }
+        Log.trace { "packages = #{packages}" }
 
         if Shards.frozen?
           validate(packages)
         end
 
+        Log.trace { "Installing..." }
         install(packages)
 
+        Log.trace { "Generate lockfile..." }
         if generate_lockfile?(packages)
+          Log.trace { "Write lockfile..." }
           write_lockfile(packages)
         elsif !Shards.frozen?
           # Touch lockfile so its mtime is bigger than that of shard.yml
@@ -65,16 +69,19 @@ module Shards
         # packages are returned by the solver in reverse topological order,
         # so transitive dependencies are installed first
         packages.each do |package|
-          # first install the dependency:
-          next unless install(package)
+          Log.with_context do
+            Log.context.set package: package.name
+            # first install the dependency:
+            next unless install(package)
 
-          # then execute the postinstall script
-          # (with access to all transitive dependencies):
-          package.postinstall
+            # then execute the postinstall script
+            # (with access to all transitive dependencies):
+            package.postinstall
 
-          # always install executables because the path resolver never actually
-          # installs dependencies:
-          package.install_executables
+            # always install executables because the path resolver never actually
+            # installs dependencies:
+            package.install_executables
+          end
         end
       end
 

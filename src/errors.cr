@@ -2,6 +2,14 @@ module Shards
   class Error < ::Exception
   end
 
+  class PackageError < Error
+    getter package
+
+    def initialize(message, @package : Package)
+      super message
+    end
+  end
+
   class Conflict < Error
     getter package
 

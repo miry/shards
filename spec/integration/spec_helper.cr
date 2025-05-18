@@ -22,7 +22,11 @@ end
 private def setup_repositories
   # git dependencies for testing version resolution:
   create_git_repository "web", "1.0.0", "1.1.0", "1.1.1", "1.1.2", "1.2.0", "2.0.0", "2.1.0"
-  create_git_repository "pg", "0.1.0", "0.2.0", "0.2.1", "0.3.0"
+  create_git_repository "pg", "0.1.0", "0.2.0", "0.2.1"
+  create_git_release "pg", "0.3.0"
+
+  pp! create_git_commit "pg", "unrelease features"
+
   create_git_repository "optional", "0.2.0", "0.2.1", "0.2.2"
   create_git_repository "shoulda", "0.1.0"
   create_git_repository "minitest", "0.1.0", "0.1.1", "0.1.2", "0.1.3"
@@ -35,8 +39,14 @@ private def setup_repositories
 
   create_git_repository "orm", "0.1.0", "0.2.0", "0.3.0", "0.3.1", "0.3.2", "0.4.0"
   create_git_release "orm", "0.5.0", {
-    dependencies: {pg: {git: git_path("pg"), version: "< 0.3.0"}},
+    dependencies: {pg: {git: git_url("pg"), version: "< 0.3.0"}},
   }
+
+  create_git_repository "marten", "0.5.3", "0.5.4", "0.5.5"
+  create_git_release "marten", "0.5.6", {
+    development_dependencies: {pg: {git: git_url("pg")}},
+  }
+  pp! create_git_commit "marten", "bug fix"
 
   create_git_repository "release", "0.2.0", "0.2.1", "0.2.2"
   create_git_release "release", "0.3.0", {

@@ -66,6 +66,18 @@ describe "update" do
     end
   end
 
+  it "lock specified subdependency" do
+    metadata = {dependencies: {c: "*", d: "0.1.0"}}
+    lock = {c: "0.1.0", d: "0.1.0"}
+
+    with_shard(metadata, lock) do
+      run "shards update c"
+
+      assert_installed "c", "0.2.0"
+      assert_installed "d", "0.2.0"
+    end
+  end
+
   it "updates specified dependencies" do
     metadata = {dependencies: {web: "*", orm: "*", optional: "*"}}
     lock = {web: "1.0.0", orm: "0.4.0", optional: "0.2.0"}
@@ -155,6 +167,41 @@ describe "update" do
       run "shards update"
       assert_installed "web", "2.1.0", git: git_commits(:web).first
       assert_locked "web", "2.1.0", git: git_commits(:web).first
+    end
+  end
+
+  it "keep locked commit for subdependency" do
+    metadata = {
+      dependencies: {
+        marten: {git: git_url(:marten), branch: "master"},
+        pg:     {git: git_url(:pg), branch: "master", commit: git_commits(:pg)[0]},
+      },
+    }
+    pp! git_commits(:marten)[1]
+    lock = {
+      marten: git_commits(:marten)[1],
+      pg:     git_commits(:pg).first,
+    }
+    with_shard(metadata, lock) do
+      output = run "cat shard.yml"
+      puts "> cat shard.yml"
+      puts output
+      output = run "shards update marten"
+      puts "> shards update marten"
+      puts output
+      assert_installed "marten", "0.5.6", git: git_commits(:marten).first
+      assert_locked "pg", "0.3.0", git: git_commits(:pg).first
+    end
+
+    with_shard(metadata, lock) do
+      output = run "cat shard.yml"
+      puts "> cat shard.yml"
+      puts output
+      output = run "shards update marten"
+      puts "> shards update marten"
+      puts output
+      assert_installed "marten", "0.5.6", git: git_commits(:marten).first
+      assert_locked "pg", "0.3.0", git: git_commits(:pg).first
     end
   end
 

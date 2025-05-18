@@ -176,12 +176,19 @@ end
 begin
   Shards.run
 rescue ex : OptionParser::InvalidOption
-  Shards::Log.fatal { ex.message }
+  Shards::Log.fatal(exception: ex) { ex.message }
   exit 1
 rescue ex : Shards::ParseError
   ex.to_s(STDERR)
   exit 1
+rescue ex : Shards::PackageError
+  ex.inspect_with_backtrace(STDERR)
+  package = ex.package
+  Shards::Log.error(exception: ex) { "Failed to install `#{package.name}`: #{ex.message}" }
+  Shards::Log.debug { ex.inspect_with_backtrace }
+  exit 1
 rescue ex : Shards::Error
-  Shards::Log.error { ex.message }
+  ex.inspect_with_backtrace(STDERR)
+  Shards::Log.error(exception: ex) { ex.message }
   exit 1
 end
