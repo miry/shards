@@ -17,6 +17,7 @@ module Shards
           solver.locks = locks.shards.reject { |d| shards.includes?(d.name) }
         end
 
+        Log.debug { "> update run" }
         solver.prepare(development: Shards.with_development?)
 
         packages = handle_resolver_errors { solver.solve }

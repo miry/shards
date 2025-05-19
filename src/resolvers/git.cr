@@ -221,6 +221,7 @@ module Shards
     end
 
     def install_sources(version : Version, install_path : String)
+      Log.debug { "> install_sources" }
       update_local_cache
       ref = git_ref(version)
 
@@ -295,6 +296,8 @@ module Shards
     end
 
     def update_local_cache
+      Log.debug { "> update_local_cache" }
+      Log.debug { Exception::CallStack.new.printable_backtrace.join("\n") + "\n\n" }
       if cloned_repository? && origin_changed?
         delete_repository
         @updated_cache = false
@@ -320,6 +323,7 @@ module Shards
     end
 
     private def mirror_repository
+      Log.debug { "> mirror_repository" }
       # The git-config option core.askPass is set to a command that is to be
       # called when git needs to ask for credentials (for example on a 401
       # response over HTTP). Setting the command to `true` effectively
