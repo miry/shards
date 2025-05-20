@@ -296,8 +296,7 @@ module Shards
     end
 
     def update_local_cache
-      Log.debug { "> update_local_cache" }
-      Log.debug { Exception::CallStack.new.printable_backtrace.join("\n") + "\n\n" }
+      # Log.debug { Exception::CallStack.new.printable_backtrace.join("\n") + "\n\n" }
       if cloned_repository? && origin_changed?
         delete_repository
         @updated_cache = false
@@ -323,7 +322,6 @@ module Shards
     end
 
     private def mirror_repository
-      Log.debug { "> mirror_repository" }
       # The git-config option core.askPass is set to a command that is to be
       # called when git needs to ask for credentials (for example on a 401
       # response over HTTP). Setting the command to `true` effectively
@@ -356,10 +354,7 @@ module Shards
     end
 
     private def delete_repository
-      Log.with_context do
-        Log.context.set package: name
-        Log.debug { "rm -rf #{Process.quote(local_path)}'" }
-      end
+      Log.debug { "rm -rf #{Process.quote(local_path)}'" }
       Shards::Helpers.rm_rf(local_path)
       @origin_url = nil
     end
@@ -370,10 +365,7 @@ module Shards
 
     private def valid_repository?
       command = "git config --get remote.origin.mirror"
-      Log.with_context do
-        Log.context.set package: name
-        Log.debug { command }
-      end
+      Log.debug { command }
 
       output = Process.run(command, shell: true, output: :pipe, chdir: local_path) do |process|
         process.output.gets_to_end
